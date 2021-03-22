@@ -156,7 +156,7 @@ def make_request_with_cache(baseurl, hashtag, count):
         the results of the query as a dictionary loaded from cache
         JSON
     '''
-    params ={"q": hashtag, "count": count}
+    params ={"q": hashtag.lower(), "count": count}
     unique_key = construct_unique_key(baseurl, params)
 
     if unique_key in CACHE_DICT.keys():
