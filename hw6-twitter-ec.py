@@ -244,8 +244,24 @@ def find_top3_most_common_cooccurring_hashtags(tweet_data, hashtag_to_ignore):
             else:
                 dict_hashtags[hashtag_] += 1
     dict_hashtags.pop(hashtag_to_ignore.lower())
-    top3 = sorted(dict_hashtags.items(), key=lambda x:x[1], reverse=True)[:3]
-    return top3[0][0] + ", " + top3[1][0] + " and " + top3[2][0]
+    if len(dict_hashtags) == 0:
+        ret = "No results"
+    
+    elif len(dict_hashtags) == 1:
+        top = sorted(dict_hashtags.items(), key=lambda x:x[1], reverse=True)[:1]
+        ret = "The most commonly cooccurring hashtag with " +  hashtag_to_ignore
+        ret += " is " + top[0][0] + " (only one hashtag found)"
+
+    elif len(dict_hashtags) == 2:
+        top2 = sorted(dict_hashtags.items(), key=lambda x:x[1], reverse=True)[:2]
+        ret = "The top 2 most commonly cooccurring hashtag with " +  hashtag_to_ignore
+        ret += " are " + top2[0][0] + " and " + top2[1][0] + " (only two hashtags found)"
+
+    else:
+        top3 = sorted(dict_hashtags.items(), key=lambda x:x[1], reverse=True)[:3]
+        ret = "The top 3 most commonly cooccurring hashtag with " +  hashtag_to_ignore
+        ret += " are " + top3[0][0] + ", " + top3[1][0] + " and " + top3[2][0]
+    return ret
 
 
 def find_top10_most_common_cooccurring_words(tweet_data):
@@ -256,9 +272,6 @@ def find_top10_most_common_cooccurring_words(tweet_data):
     ----------
     tweet_data: dict
         Twitter data as a dictionary for a specific query
-    hashtag_to_ignore: string
-        the same hashtag that is queried in make_request_with_cache() 
-        (e.g. "#MarchMadness2021")
 
     Returns
     -------
@@ -280,13 +293,14 @@ def find_top10_most_common_cooccurring_words(tweet_data):
     for tweet in list_tweets:
         list_words = tweet['text'].lower().split()
         for word in list_words:
-            if word not in stopwords:
+            if (word not in stopwords) and (word[0] != "#"):
                 if word not in dict_words.keys():
                     dict_words[word] = 1
                 else:
                     dict_words[word] += 1
-
-    top10 = sorted(dict_words.items(), key=lambda x:x[1], reverse=True)[:10]
+    
+    num = min(10, len(dict_words.keys()))
+    top10 = sorted(dict_words.items(), key=lambda x:x[1], reverse=True)[:num]
     return top10
     
 
@@ -318,9 +332,9 @@ if __name__ == "__main__":
             else:
                 top3_most_common_cooccurring_hashtags = find_top3_most_common_cooccurring_hashtags(tweet_data, hashtag)
                 print()
-                print("The top 3 most commonly cooccurring hashtag with {} are {}.".format(hashtag, top3_most_common_cooccurring_hashtags))
+                print(top3_most_common_cooccurring_hashtags)
                 top10_most_common_cooccurring_words = find_top10_most_common_cooccurring_words(tweet_data)
                 print()
-                print("The top 10 most commonly occurring words are")
+                print("The top 10 most commonly occurring words and the frequencies are")
                 print(top10_most_common_cooccurring_words)
 
